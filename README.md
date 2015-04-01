@@ -42,10 +42,7 @@ chain.switchTo('permission_screen', param);
 - The application structure is described with transactions of transitions between application states. Each transaction consists of operations. Each operation is implemented via calling **middleware**
 - A transaction may be interrupted and redirected. In contrast to standard approaches of describing operation sequences, there are three ways to end an operation: `next`, `error` and `switchTo`. This allows to easily describe the application structure with an opportunity of routing. 
 - An opportunity of setting an execution context for **middleware**.
-
-##API
-
-
+- Transaction of the transition flow can be interrupted.
 
 ##Example
 Let's make an example of a description of transit flow:
