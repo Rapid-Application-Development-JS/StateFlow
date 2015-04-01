@@ -1,0 +1,32 @@
+{
+  "name": "stateflow",
+  "version": "0.1.0",
+  "description": "just a small tool for logical chains based on middleware idea",
+  "main": "stateflow.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rapid-Application-Development-JS/StateFlow.git"
+  },
+  "keywords": [
+    "state",
+    "flow",
+    "chain",
+    "middleware"
+  ],
+  "author": "Mobidev <rad.js@mobidev.biz> (http://rad-js.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Rapid-Application-Development-JS/StateFlow/issues"
+  },
+  "devDependencies": {
+    "gulp": "~3.8.11",
+    "gulp-concat": "~2.5.2",
+    "gulp-wrap-umd": "~0.2.1",
+    "run-sequence": "~1.0.2",
+    "mocha": "~2.2.1",
+    "chai": "~2.2.0"
+  }
+}
