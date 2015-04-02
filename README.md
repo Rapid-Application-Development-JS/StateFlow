@@ -68,7 +68,8 @@ var showRequredScreen = function (params, chain) {
     }
 };
 
-// flow.to('login')
+// describe flow for 'login' state
+flow.to('login')
     .process(showLoginScreen)
     .process(tryAuthorizate)
     .error(authorizationError)
@@ -92,8 +93,30 @@ When we try to move to the state `user`, `checkAuthorization` is registered as o
 > Take notice that during the description of **middleware** for login `flow` you will have to manually forward the transition parameters through all operations.
 
 ##Roadmap
-- Rollback API for **middleware**.
+- Subflows which can be included as part of other transactions
+
+```javascript
+flow.new('subflow')
+    .process(middleware)
+    // ...
+    .described();
+    
+flow.to('a')
+    .process('subflow')
+    .process(middleware1)
+    .error(middleware2)
+    .process(middleware3)
+    .described();
+    
+flow.to('b')
+    .process(middleware4)
+    .error('subflow')
+    .after(middleware5)
+    .described();
+```
+
 - Opportunity of setting multiple parallel operations for `process` and `do`.
+- Rollback API for **middleware**.
 - Opportunity of using routing URL as a state name (for front-end and node.js), automatic transmission of URL parameters as transaction parameters. For example, `sequencer.pipe('/users/:id/)` will launch a transaction of transition to this state with `id` as a transaction parameter.
 - Embedded states, which are described via `state.substate`.
 
