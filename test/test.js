@@ -244,7 +244,7 @@ describe('0.1: Base tests', function () {
         flowHandler.run({counter: 0});
     });
 
-    it('0.1.8: Flow: transition flow via condition', function (done) {
+    it('0.1.9: Flow: transition flow via condition', function (done) {
         var isAuthorized = false;
 
         var checkAuthorization = function (data, chain) {
@@ -288,13 +288,37 @@ describe('0.1: Base tests', function () {
             .process(checkAuthorization)
             .process(middleware)
             .process(function (data, chain) {
-                (data).should.equal('_check_authorization_check_middleware');
+                (data.flow).should.equal('_check_authorization_check_middleware');
                 done();
             })
             .described();
 
         // try to switch to 'user' state with id=123, 'flow' attribute only for testing
         flow.switchTo('user', {id: 123, flow: ''})
+    });
+
+    it('0.1.10: Flow: switch after interrupting flow', function (done) {
+        function middleware(data, chain) {
+            setTimeout(function () {
+                data += 1;
+                chain.next(data);
+            }, 50);
+        }
+
+        flow.to('a')
+            .process(middleware)
+            .process(middleware)
+            .process(middleware)
+            .described('b');
+
+        flow.to('b')
+            .process(function () {
+                (data).should.equal(3);
+                done();
+            })
+            .described();
+
+        flow.switchTo('a', 0);
     });
 
 });
