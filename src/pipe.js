@@ -22,6 +22,8 @@ function Pipe(stateName, changeStateCallback){
 
     // todo implement log
     this.dataLog = [];
+
+    this._runID = null;
 }
 
 Pipe.prototype.exception = {
@@ -200,6 +202,9 @@ Pipe.prototype._getAfterStep = function () {
 
 Pipe.prototype.run = function (data) {
     if (this.isReady) {
+
+        this._runID = this._getRunID();
+
         this._unlockAllSteps();
         this.isReady = false;
         this.described();
@@ -224,14 +229,14 @@ Pipe.prototype._log = function(options) {
 Pipe.prototype._unlockAllSteps = function () {
     for (var i = 0; i < this.steps.length; i++) {
         // todo refactor this
-        this.steps[i].handler.unlock();
+        this.steps[i].unlock();
     }
 };
 
 Pipe.prototype._lockAllSteps = function () {
     for (var i = 0; i < this.steps.length; i++) {
         // todo refactor this
-        this.steps[i].handler.lock();
+        this.steps[i].lock();
     }
 };
 
@@ -282,3 +287,9 @@ Pipe.prototype._findStepByType = function (type, backwardSearch, start) {
 
     return step;
 };
+
+Pipe.prototype._getRunID = function () {
+    return 'runid' + this.constructor.prototype.runIDBase++;
+};
+
+Pipe.prototype.runIDBase = 0;

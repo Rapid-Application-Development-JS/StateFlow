@@ -25,6 +25,8 @@ function PipeStep (options){
     this.data = null;
 
     this.id = this.generateId();
+
+    this._runID = null;
 }
 
 PipeStep.prototype.exception = {
@@ -152,6 +154,18 @@ PipeStep.prototype.attachStateSwitchCallback = function(pipeStep) {
             self.switchStateCallback(state, data);
         }
     })
+};
+
+PipeStep.prototype._getActualRunID = function () {
+    return this._runID;
+};
+
+PipeStep.prototype.lock = function () {
+    this.handler.lock();
+};
+
+PipeStep.prototype.unlock = function () {
+    this.handler.unlock();
 };
 
 // to - to,
