@@ -62,7 +62,6 @@ describe('0.1: Base tests', function () {
     });
 
     it('0.1.3: Flow: error handlers & state switching', function (done) {
-
         function middleware1(data, chain) {
             data += '1';
             chain.error(data);
@@ -96,6 +95,10 @@ describe('0.1: Base tests', function () {
             .process(middleware1)
             .process(middleware2)
             .error(errorHandler1)
+            .process(function (data, chain) {
+                // it never execute
+                // otherwise the test should fail due to a timeout
+            })
             .error(errorHandler2)
             .process(middleware3)
             .described();
@@ -194,54 +197,51 @@ describe('0.1: Base tests', function () {
         flow.switchTo('b');
     });
 
-    //it('0.1.3: Flow: switch after interrupting flow', function (done) {
-    //
-    //    function callAsync(chain, data) {
-    //        console.log('2 middleware2: ', data);
-    //        setTimeout(function () {
-    //            console.log('async middleware2: ', data);
-    //            chain.next(data);
-    //        }, 1500);
-    //    }
-    //
-    //    function middleware1(data, chain) {
-    //        console.log('middleware1: ', data);
-    //        chain.next(data);
-    //    }
-    //
-    //    function middleware2(data, chain) {
-    //        console.log('1 middleware2: ', data);
-    //        callAsync(chain, data);
-    //    }
-    //
-    //    function middleware3(data, chain) {
-    //        console.log('middleware3: ', data);
-    //        chain.next();
-    //        done();
-    //    }
-    //
-    //    function middleware4(data, chain) {
-    //        console.log('!!!!!!!!!!!!!!!!!!!!');
-    //        chain.next();
-    //    }
-    //
-    //    flow.to('a')
-    //        .process(middleware1)
-    //        .process(middleware2)
-    //        .process(middleware3)
-    //        .described();
-    //
-    //    flow.to('b')
-    //        .process(middleware4)
-    //        .described();
-    //
-    //
-    //    console.log('===== switch to "a" =====');
-    //    flow.switchTo('a', {start: new Date().getTime()});
-    //    console.log('===== switch to "b" =====');
-    //    flow.switchTo('b');
-    //    console.log('===== switch to "a" =====');
-    //    flow.switchTo('a', {start: new Date().getTime()});
-    //});
+    it('0.1.7: Flow: switch after interrupting flow', function (done) {
+        function middlewareA(data, chain) {
+            setTimeout(function () {
+                chain.next(data);
+            }, 50);
+        }
+
+        flow.to('a')
+            .process(middlewareA)
+            .process(middlewareA)
+            .process(middlewareA)
+            .after(function (data) {
+                (data).should.equal('second time');
+                done();
+            })
+            .described();
+
+        flow.to('b')
+            .process(function () {
+            })
+            .described();
+
+        flow.switchTo('a', 'first time');
+        flow.switchTo('b');
+        flow.switchTo('a', 'second time');
+    });
+
+    it('0.1.8: Flow: directly run flow', function (done) {
+        var middlewareA = function (data, chain) {
+            setTimeout(function () {
+                data.counter += 1;
+                chain.next(data);
+            }, 50);
+        };
+
+        var flowHandler = flow.to('a')
+            .process(middlewareA)
+            .process(middlewareA)
+            .after(function (data) {
+                (data.counter).should.equal(2);
+                done();
+            })
+            .described();
+
+        flowHandler.run({counter: 0});
+    });
 
 });
