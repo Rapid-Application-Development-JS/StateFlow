@@ -119,7 +119,7 @@ Pipe.prototype.described = function (state) {
         i;
 
     if ( this.isAfterCallbackApplied ) {
-        afterStep = this.getAfterStep();
+        afterStep = this._getAfterStep();
     }
 
     for (i = 0; i < this.steps.length; i++) {
@@ -128,8 +128,8 @@ Pipe.prototype.described = function (state) {
 
         if ( step === afterStep) continue;
 
-        closestProcess = this.closestProcess(step);
-        closestErrorHandler = this.closestErrorHandler(step);
+        closestProcess = this._closestProcess(step);
+        closestErrorHandler = this._closestErrorHandler(step);
 
         // todo if there is no closest error handler - link step to ?
         // todo if there is no closest process - link step to finish step
@@ -153,7 +153,7 @@ Pipe.prototype.described = function (state) {
     return this;
 };
 
-Pipe.prototype.closestStep = function (base, type) {
+Pipe.prototype._closestStep = function (base, type) {
     var index = this.steps.indexOf(base),
         currentStep,
         neededStep,
@@ -182,15 +182,15 @@ Pipe.prototype.closestStep = function (base, type) {
     return neededStep;
 };
 
-Pipe.prototype.closestProcess = function (base) {
-    return this.closestStep(base, PipeStep.prototype.pipeStepTypes.PROCESS);
+Pipe.prototype._closestProcess = function (base) {
+    return this._closestStep(base, PipeStep.prototype.pipeStepTypes.PROCESS);
 };
 
-Pipe.prototype.closestErrorHandler = function (base) {
-    return this.closestStep(base, PipeStep.prototype.pipeStepTypes.ERROR_HANDLER);
+Pipe.prototype._closestErrorHandler = function (base) {
+    return this._closestStep(base, PipeStep.prototype.pipeStepTypes.ERROR_HANDLER);
 };
 
-Pipe.prototype.getAfterStep = function () {
+Pipe.prototype._getAfterStep = function () {
     var after = null;
     if ( this.isAfterCallbackApplied ) {
         after = this._findStepByType(PipeStep.prototype.pipeStepTypes.AFTER);

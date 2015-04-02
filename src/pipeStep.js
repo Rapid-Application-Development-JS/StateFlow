@@ -143,10 +143,11 @@ PipeStep.prototype.attachStateSwitchCallback = function(pipeStep) {
         self.status = self.statuses.STATE_CHANGED;
         self.data = data;
         if ( pipeStep instanceof PipeStep ) {
-            pipeStep.handler.attachFunction('next', function (){
-                self.switchStateCallback(state, data);
+
+            pipeStep.handler.attachFunction('next', function (lastStepData){
+                self.switchStateCallback(state, lastStepData);
             });
-            pipeStep.run();
+            pipeStep.run(data);
         } else {
             self.switchStateCallback(state, data);
         }

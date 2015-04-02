@@ -122,7 +122,7 @@ describe('0.1: Base tests', function () {
 
         flow.to('a')
             .process(middleware)
-            .after(function (data) {
+            .after(function (data, chain) {
                 (data.flow).should.equal('123');
                 done();
             })
@@ -148,6 +148,7 @@ describe('0.1: Base tests', function () {
             .process(middleware)
             .after(function (data, chain) {
                 data.flow += 'after';
+                //console.log(data);
                 chain.next(data);
             })
             .process(middleware)
@@ -156,7 +157,7 @@ describe('0.1: Base tests', function () {
 
         flow.to('b')
             .process(function (data) {
-                console.log(data);
+                //console.log(data);
                 done();
             })
             .described();
