@@ -244,4 +244,57 @@ describe('0.1: Base tests', function () {
         flowHandler.run({counter: 0});
     });
 
+    it('0.1.8: Flow: transition flow via condition', function (done) {
+        var isAuthorized = false;
+
+        var checkAuthorization = function (data, chain) {
+            data.flow += '_check';
+            if (!isAuthorized) {
+                chain.switchTo('login', {
+                    state: chain.getCurrentState(),
+                    param: data
+                })
+            } else {
+                chain.next(data);
+            }
+        };
+
+        var showRequredScreen = function (data, chain) {
+            if (data) {
+                chain.switchTo(data.state, data.param)
+            } else {
+                chain.next();
+            }
+        };
+
+        var middleware = function (data, chain) {
+            data.flow += '_middleware';
+            chain.next(data);
+        };
+
+        // describe flow for 'login' state
+        flow.to('login')
+            .process(function (data, chain) {
+                isAuthorized = true;
+
+                data.param.flow += '_authorization';
+                chain.next(data);
+            })
+            .process(showRequredScreen)
+            .described('home');
+
+        // describe flow for 'user' state
+        flow.to('user')
+            .process(checkAuthorization)
+            .process(middleware)
+            .process(function (data, chain) {
+                (data).should.equal('_check_authorization_check_middleware');
+                done();
+            })
+            .described();
+
+        // try to switch to 'user' state with id=123, 'flow' attribute only for testing
+        flow.switchTo('user', {id: 123, flow: ''})
+    });
+
 });
