@@ -1,5 +1,5 @@
 var should = require("chai").should();
-var Flow = require("../stateflow.js");
+var Flow = require("../bin/stateflow.min.js");
 
 var flow;
 
