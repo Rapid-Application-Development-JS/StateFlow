@@ -105,7 +105,7 @@ Pipe.prototype.error = function (fn, context) {
     return this;
 };
 
-Pipe.prototype.described = function (state) {
+Pipe.prototype.described = function (finalState) {
 
     this._checkIfDescribed();
 
@@ -119,10 +119,20 @@ Pipe.prototype.described = function (state) {
         closestProcess,
         afterStep,
         i;
+    
+    if ( typeof finalState === 'string' && finalState.length ) {
+        var finalStateCallack = this._stateCallback.bind(this, finalState);
+        if ( this.isAfterCallbackApplied ) {
+            this._getAfterStep()._bindNextFunction(finalStateCallack);
+        } else {
+            this.after(finalStateCallack);
+        }
+    }
 
     if ( this.isAfterCallbackApplied ) {
         afterStep = this._getAfterStep();
     }
+
 
     for (i = 0; i < this.steps.length; i++) {
 

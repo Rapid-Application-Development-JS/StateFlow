@@ -102,6 +102,12 @@ PipeStep.prototype._linkTo = function (pipeStep, type) {
 
 };
 
+PipeStep.prototype._bindNextFunction = function(fn) {
+    if (typeof fn === 'function') {
+        this.handler.attachFunction('next', fn)
+    }
+};
+
 PipeStep.prototype.linkToProcess = function (pipeStep) {
     var self = this,
         isProcess,
@@ -188,19 +194,15 @@ PipeStep.prototype._createHandler = function() {
     });
 
     handler.attachFunction('switchTo', function (state, data) {
-        //console.log('pipestep switch to', state, data, afterStep instanceof PipeStep);
         self.status = self.statuses.STATE_CHANGED;
         self.data = data;
         if ( afterStep instanceof PipeStep ) {
 
-            afterStep.handler.attachFunction('next', function (lastStepData){
-                //console.log('running after switchStateCallback');
+            afterStep._bindNextFunction(function (lastStepData){
                 self.switchStateCallback(state, lastStepData);
             });
-            //console.log('run after step');
             afterStep.run(data);
         } else {
-            //console.log('direct call switchStateCallback');
             self.switchStateCallback(state, data);
         }
     });

@@ -283,7 +283,10 @@ describe('0.1: Base tests', function () {
                 chain.next(data);
             })
             .process(showRequredScreen)
-            .described('home');
+            //.after(function (data, chain){
+            //    chain.next(data);
+            //})
+            .described('user');
 
         // describe flow for 'user' state
         flow.to('user')
@@ -303,6 +306,7 @@ describe('0.1: Base tests', function () {
         function middleware(data, chain) {
             setTimeout(function () {
                 data += 1;
+                console.log(data);
                 chain.next(data);
             }, 50);
         }
@@ -314,7 +318,7 @@ describe('0.1: Base tests', function () {
             .described('b');
 
         flow.to('b')
-            .process(function () {
+            .process(function (data) {
                 (data).should.equal(3);
                 done();
             })
