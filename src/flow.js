@@ -29,16 +29,16 @@ Flow.prototype.switchTo = function (name, data) {
         throw new Error(this.exception.NAME_DOES_NOT_EXIST);
     }
 
-    this._lockAll();
-
     this.activePipe = this.pipes[name];
+
+    this._lockAll();
 
     this.activePipe.run(data);
 };
 
 Flow.prototype._lockAll = function () {
     for (var pipeName in this.pipes) {
-        if (this.pipes.hasOwnProperty(pipeName)) {
+        if (this.pipes.hasOwnProperty(pipeName) && this.pipes[pipeName] !== this.activePipe) {
             this.pipes[pipeName]._lockAllSteps();
         }
     }

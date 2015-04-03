@@ -14,6 +14,8 @@ function PipeStep (options){
 
     this.handler = new Flowhandler(options.name);
 
+    this._parentPipeName = options.name;
+
     this.switchStateCallback = options.stateCallback;
 
     if (typeof options.fn === 'function') {
@@ -27,6 +29,12 @@ function PipeStep (options){
     this.id = this.generateId();
 
     this._runID = null;
+
+    this._links = {
+        error : null,
+        next : null,
+        switchTo : null
+    };
 }
 
 PipeStep.prototype.exception = {
@@ -110,11 +118,7 @@ PipeStep.prototype.linkToProcess = function (pipeStep) {
         return false;
     }
 
-    this.handler.attachFunction('next', function(data){
-        self.status = self.statuses.DONE;
-        self.data = data;
-        pipeStep.run(data);
-    });
+    this._links.next = pipeStep;
 };
 
 PipeStep.prototype.linkToErrorHandler = function (pipeStep) {
@@ -131,29 +135,13 @@ PipeStep.prototype.linkToErrorHandler = function (pipeStep) {
         return false;
     }
 
-    this.handler.attachFunction('error', function(data){
-        self.status = self.statuses.ERROR;
-        self.data = data;
-        pipeStep.run(data);
-    });
+    this._links.error = pipeStep;
 };
 
 PipeStep.prototype.attachStateSwitchCallback = function(pipeStep) {
     var self = this;
 
-    this.handler.attachFunction('switchTo', function (state, data) {
-        self.status = self.statuses.STATE_CHANGED;
-        self.data = data;
-        if ( pipeStep instanceof PipeStep ) {
-
-            pipeStep.handler.attachFunction('next', function (lastStepData){
-                self.switchStateCallback(state, lastStepData);
-            });
-            pipeStep.run(data);
-        } else {
-            self.switchStateCallback(state, data);
-        }
-    })
+    this._links.switchTo = pipeStep;
 };
 
 PipeStep.prototype._getActualRunID = function () {
@@ -161,6 +149,14 @@ PipeStep.prototype._getActualRunID = function () {
 };
 
 PipeStep.prototype.lock = function () {
+    // todo move this to separate function
+    /**
+     * looks strange, i know
+     * trust me, i'll refactor that
+     * @see _createHandler switchTo
+     */
+    this.handler._discharge();
+    this.handler = this._createHandler();
     this.handler.lock();
 };
 
@@ -168,4 +164,46 @@ PipeStep.prototype.unlock = function () {
     this.handler.unlock();
 };
 
-// to - to,
+PipeStep.prototype._createHandler = function() {
+	var handler = new Flowhandler(this._parentPipeName),
+        nextStep = this._links.next,
+        errorHandlerStep = this._links.error,
+        afterStep = this._links.switchTo,
+        self = this;
+
+    handler.attachFunction('next', function (data){
+        self.status = self.statuses.DONE;
+        self.data = data;
+        if ( nextStep instanceof PipeStep ) {
+            nextStep.run(data);
+        }
+    });
+
+    handler.attachFunction('error', function(data){
+        self.status = self.statuses.ERROR;
+        self.data = data;
+        if ( errorHandlerStep instanceof PipeStep ) {
+            errorHandlerStep.run(data);
+        }
+    });
+
+    handler.attachFunction('switchTo', function (state, data) {
+        //console.log('pipestep switch to', state, data, afterStep instanceof PipeStep);
+        self.status = self.statuses.STATE_CHANGED;
+        self.data = data;
+        if ( afterStep instanceof PipeStep ) {
+
+            afterStep.handler.attachFunction('next', function (lastStepData){
+                //console.log('running after switchStateCallback');
+                self.switchStateCallback(state, lastStepData);
+            });
+            //console.log('run after step');
+            afterStep.run(data);
+        } else {
+            //console.log('direct call switchStateCallback');
+            self.switchStateCallback(state, data);
+        }
+    });
+
+    return handler;
+};

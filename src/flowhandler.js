@@ -2,9 +2,7 @@ function Flowhandler (name){
     this._locked = false;
     this._parentPipeName = name;
 
-    this.attachFunction('switchTo', this._stateCallbackStub);
-    this.attachFunction('next', this._nextCallbackStub);
-    this.attachFunction('error', this._errorCallbackStub);
+    this._discharge();
 
     //if ( typeof stateCallback === 'function' ) {
     //    this.attachFunction('switchTo', stateCallback);
@@ -69,4 +67,10 @@ Flowhandler.prototype.lock = function () {
 
 Flowhandler.prototype.unlock = function () {
     this._locked = false;
+};
+
+Flowhandler.prototype._discharge = function() {
+    this.attachFunction('switchTo', this._stateCallbackStub);
+    this.attachFunction('next', this._nextCallbackStub);
+    this.attachFunction('error', this._errorCallbackStub);
 };

@@ -13,7 +13,7 @@ describe('0.1: Base tests', function () {
     });
 
     it('0.1.1: Flow: data transfer through async operation', function (done) {
-        this.timeout(60);
+        this.timeout(100);
 
         function middleware1(data, chain) {
             data += '1';
@@ -22,7 +22,6 @@ describe('0.1: Base tests', function () {
 
         function middleware2(data, chain) {
             data += '2';
-
             // async data flow
             setTimeout(function () {
                 chain.next(data);
@@ -148,7 +147,6 @@ describe('0.1: Base tests', function () {
             .process(middleware)
             .after(function (data, chain) {
                 data.flow += 'after';
-                //console.log(data);
                 chain.next(data);
             })
             .process(middleware)
@@ -242,7 +240,10 @@ describe('0.1: Base tests', function () {
             })
             .described();
 
+
+
         flowHandler.run({counter: 0});
+        //flow.switchTo('a', {counter: 0});
     });
 
     it('0.1.9: Flow: transition flow via condition', function (done) {

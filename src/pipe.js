@@ -146,9 +146,9 @@ Pipe.prototype.described = function (state) {
             }
         }
         step.attachStateSwitchCallback(afterStep);
-
-
     }
+
+    this._lockAllSteps();
 
     this.isReady = true;
 
@@ -203,11 +203,9 @@ Pipe.prototype._getAfterStep = function () {
 Pipe.prototype.run = function (data) {
     if (this.isReady) {
 
-        this._runID = this._getRunID();
-
         this._unlockAllSteps();
-        this.isReady = false;
-        this.described();
+        //this.isReady = false;
+        //this.described();
         // todo refactor this
         this._findStepByType(PipeStep.prototype.pipeStepTypes.PROCESS)
             .run(data);
@@ -287,9 +285,3 @@ Pipe.prototype._findStepByType = function (type, backwardSearch, start) {
 
     return step;
 };
-
-Pipe.prototype._getRunID = function () {
-    return 'runid' + this.constructor.prototype.runIDBase++;
-};
-
-Pipe.prototype.runIDBase = 0;
