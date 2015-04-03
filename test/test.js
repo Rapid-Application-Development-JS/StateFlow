@@ -302,11 +302,10 @@ describe('0.1: Base tests', function () {
         flow.switchTo('user', {id: 123, flow: ''})
     });
 
-    it('0.1.10: Flow: switch after interrupting flow', function (done) {
+    it('0.1.10: Flow: switch to other flow via "described"', function (done) {
         function middleware(data, chain) {
             setTimeout(function () {
                 data += 1;
-                console.log(data);
                 chain.next(data);
             }, 50);
         }
@@ -326,5 +325,36 @@ describe('0.1: Base tests', function () {
 
         flow.switchTo('a', 0);
     });
+
+    it('0.1.11: Flow: switch transaction via "switchTo"', function (done) {
+        function middleware(data, chain) {
+            setTimeout(function () {
+                data += 1;
+                console.log(data);
+                if (data === 1) {
+                    chain.error(data);
+                } else {
+                    chain.next(data);
+                }
+            }, 50);
+        }
+
+        flow.to('a')
+            .process(middleware)
+            .switchTo('b')
+            .error(middleware)
+            .process(middleware)
+            .described();
+
+        flow.to('b')
+            .process(function (data) {
+                (data).should.equal(1);
+                done();
+            })
+            .described();
+
+        flow.switchTo('a', 0);
+    });
+
 
 });
