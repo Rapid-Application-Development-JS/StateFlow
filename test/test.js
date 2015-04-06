@@ -1,12 +1,12 @@
 var should = require("chai").should();
-var Flow = require("../bin/stateflow.min.js");
+var StateFlow = require("../bin/stateflow.min.js");
 
-var flow;
+var flow, state;
 
 describe('0.1: Base tests', function () {
 
     beforeEach(function () {
-        flow = new Flow();
+        flow = StateFlow.create().flow;
     });
     afterEach(function () {
         flow = null;
@@ -283,9 +283,6 @@ describe('0.1: Base tests', function () {
                 chain.next(data);
             })
             .process(showRequredScreen)
-            //.after(function (data, chain){
-            //    chain.next(data);
-            //})
             .described('user');
 
         // describe flow for 'user' state
@@ -356,5 +353,33 @@ describe('0.1: Base tests', function () {
         flow.switchTo('a', 0);
     });
 
+    it('0.1.10: Flow: empty flow', function (done) {
+
+        flow.to('a')
+            .described('b');
+
+        flow.to('b')
+            .process(function () {
+                done();
+            })
+            .described();
+
+        flow.switchTo('a');
+    });
+
+});
+
+describe('0.1: Base tests', function () {
+
+    beforeEach(function () {
+        state = StateFlow.create();
+    });
+    afterEach(function () {
+        state = null;
+    });
+
+    it('0.1.1: State: change state notification', function (done) {
+        done();
+    });
 
 });

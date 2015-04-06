@@ -110,11 +110,19 @@ After the interruption of a transition to any state, and after the launch of a t
 > Pay attention to the launch of a transaction with [run](#run), since transactions are transitions between states, and there can be only one state in the application - any other transaction currently happening would be interrupted, while the application will shift to the state, for which the transaction was launched.
 
 ###Flow
-An object created with:
+An singleton object created with:
 
 ```javascript
-var Flow = require("path/stateflow.min.js");
-var flow = new Flow();
+// create singletone
+var StateFlow = require("path/stateflow.min.js").create();
+
+// use singleton
+var flow = StateFlow.flow;
+// or after creation
+var flow = require("path/stateflow.min.js");
+
+// destroy singleton
+require("path/stateflow.min.js").destroy();
 ```
 will actually be a *builder* for describing states with an option of switching to a described state.
   

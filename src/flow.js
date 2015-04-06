@@ -43,3 +43,7 @@ Flow.prototype._lockAll = function () {
         }
     }
 };
+
+Flow.prototype.destroy = function () {
+    // todo implement it
+};
