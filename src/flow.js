@@ -1,5 +1,6 @@
 function Flow(){
     this.pipes = {};
+    this.states = {};
     this.activePipe = null;
 }
 
@@ -10,13 +11,8 @@ Flow.prototype.exception = {
 };
 
 Flow.prototype.to = function (name) {
-    if ( typeof name !== 'string' || !name.length ) {
-        throw new Error(this.exception.WRONG_NAME);
-    }
-
-    if ( this.pipes.hasOwnProperty(name) ) {
-        throw new Error(this.exception.NAME_EXISTS);
-    }
+    this._checkNameAcceptable(name);
+    this._checkNameExists(name);
 
     this.pipes[name] = new Pipe(name, this.switchTo.bind(this));
 
@@ -36,14 +32,37 @@ Flow.prototype.switchTo = function (name, data) {
     this.activePipe.run(data);
 };
 
+
+Flow.prototype.destroy = function () {
+    // todo implement it
+};
+
+Flow.prototype.state = function (name) {
+    this._checkNameAcceptable(name);
+    this._checkNameExists(name);
+
+    this.states[name] = new State(name);
+
+    return this.pipes[name];
+};
+
+Flow.prototype._checkNameExists = function (name) {
+    //if ( this.pipes.hasOwnProperty(name) ) {
+    if ( this.states.hasOwnProperty(name) || this.pipes.hasOwnProperty(name) ) {
+        throw new Error(this.exception.NAME_EXISTS);
+    }
+};
+
+Flow.prototype._checkNameAcceptable = function (name) {
+    if ( typeof name !== 'string' || !name.length ) {
+        throw new Error(this.exception.WRONG_NAME);
+    }
+};
+
 Flow.prototype._lockAll = function () {
     for (var pipeName in this.pipes) {
         if (this.pipes.hasOwnProperty(pipeName) && this.pipes[pipeName] !== this.activePipe) {
             this.pipes[pipeName]._lockAllSteps();
         }
     }
-};
-
-Flow.prototype.destroy = function () {
-    // todo implement it
 };

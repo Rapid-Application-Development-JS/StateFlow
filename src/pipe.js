@@ -1,4 +1,6 @@
-function Pipe(stateName, changeStateCallback){
+function Pipe(state, changeStateCallback){
+
+    var stateName = state.name;
 
     if (typeof stateName !== 'string') {
         throw new Error('');
@@ -9,6 +11,8 @@ function Pipe(stateName, changeStateCallback){
     }
 
     this.name = stateName;
+
+    this.state = state;
 
     this.data = null;
     this.dataStates = [];
@@ -121,7 +125,11 @@ Pipe.prototype.described = function (finalState) {
         i;
     
     if ( typeof finalState === 'string' && finalState.length ) {
-        var finalStateCallack = this._stateCallback.bind(this, finalState);
+        //var finalStateCallack = this._stateCallback.bind(this, finalState);
+
+        // todo check if it's correct
+        var finalStateCallack = this.state.run.bind(this.state);
+
         if ( this.isAfterCallbackApplied ) {
             this._getAfterStep()._bindNextFunction(finalStateCallack);
         } else {
