@@ -6,7 +6,7 @@ var flow, state;
 describe('0.1: Base tests', function () {
 
     beforeEach(function () {
-        flow = StateFlow.create().flow;
+        flow = StateFlow.destroy().create().flow;
     });
     afterEach(function () {
         flow = null;
@@ -372,7 +372,7 @@ describe('0.1: Base tests', function () {
 describe('0.1: Base tests', function () {
 
     beforeEach(function () {
-        state = StateFlow.create();
+        state = StateFlow.destroy().create().state;
     });
     afterEach(function () {
         state = null;

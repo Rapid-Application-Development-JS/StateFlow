@@ -1,8 +1,10 @@
 var StateFlow = {
     create: function () {
-        this.destroy();
-        this.state = new State();
-        this.flow = new Flow();
+        if (!this.state || !this.flow) {
+            this.state = new State();
+            this.flow = new Flow();
+        }
+
         return this;
     },
     destroy: function () {
