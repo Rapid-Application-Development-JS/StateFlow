@@ -1,5 +1,5 @@
 var should = require("chai").should();
-var StateFlow = require("../bin/stateflow.min.js");
+var StateFlow = require("../bin/stateflow.js");
 
 var flow, state;
 
@@ -9,6 +9,7 @@ describe('0.1: Base tests', function () {
         flow = StateFlow.create().flow;
     });
     afterEach(function () {
+        StateFlow.destroy();
         flow = null;
     });
 
@@ -372,14 +373,19 @@ describe('0.1: Base tests', function () {
 describe('0.1: Base tests', function () {
 
     beforeEach(function () {
-        state = StateFlow.create();
+        state = StateFlow.destroy().create().state;
     });
     afterEach(function () {
         state = null;
     });
 
-    it('0.1.1: State: change state notification', function (done) {
-        done();
-    });
+    it('0.1.1: State: change state notification via callback', function (done) {
+        function callback (data) {
+            (data).should.equal(1);
+            done();
+        }
 
+        state('a').attach(callback);
+        state('a').run(1);
+    });
 });

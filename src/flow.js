@@ -1,7 +1,8 @@
-function Flow(){
+function Flow(stateLocator){
     this.pipes = {};
-    this.states = {};
+    //this.states = {};
     this.activePipe = null;
+    this.stateLocator = stateLocator
 }
 
 Flow.prototype.exception = {
@@ -14,7 +15,7 @@ Flow.prototype.to = function (name) {
     this._checkNameAcceptable(name);
     this._checkNameExists(name);
 
-    this.pipes[name] = new Pipe(name, this.switchTo.bind(this));
+    this.pipes[name] = new Pipe(name, this.switchTo.bind(this), this.stateLocator);
 
     return this.pipes[name];
 };
@@ -34,21 +35,22 @@ Flow.prototype.switchTo = function (name, data) {
 
 
 Flow.prototype.destroy = function () {
+    this.stateLocator = null;
     // todo implement it
 };
 
-Flow.prototype.state = function (name) {
-    this._checkNameAcceptable(name);
-    this._checkNameExists(name);
-
-    this.states[name] = new State(name);
-
-    return this.pipes[name];
-};
+//Flow.prototype.state = function (name) {
+//    this._checkNameAcceptable(name);
+//    this._checkNameExists(name);
+//
+//    this.states[name] = new State(name);
+//
+//    return this.pipes[name];
+//};
 
 Flow.prototype._checkNameExists = function (name) {
-    //if ( this.pipes.hasOwnProperty(name) ) {
-    if ( this.states.hasOwnProperty(name) || this.pipes.hasOwnProperty(name) ) {
+    if ( this.pipes.hasOwnProperty(name) ) {
+    //if ( this.states.hasOwnProperty(name) || this.pipes.hasOwnProperty(name) ) {
         throw new Error(this.exception.NAME_EXISTS);
     }
 };

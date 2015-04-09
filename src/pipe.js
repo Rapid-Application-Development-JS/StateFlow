@@ -1,8 +1,6 @@
-function Pipe(state, changeStateCallback){
+function Pipe(name, changeStateCallback, stateLocator){
 
-    var stateName = state.name;
-
-    if (typeof stateName !== 'string') {
+    if (typeof name !== 'string') {
         throw new Error('');
     }
 
@@ -10,9 +8,7 @@ function Pipe(state, changeStateCallback){
         this._stateCallback = changeStateCallback;
     }
 
-    this.name = stateName;
-
-    this.state = state;
+    this.name = name;
 
     this.data = null;
     this.dataStates = [];
@@ -28,6 +24,8 @@ function Pipe(state, changeStateCallback){
     this.dataLog = [];
 
     this._runID = null;
+
+    this.stateLocator = stateLocator;
 }
 
 Pipe.prototype.exception = {
@@ -122,13 +120,20 @@ Pipe.prototype.described = function (finalState) {
         closestErrorHandler,
         closestProcess,
         afterStep,
-        i;
+        i,
+        pipe = this;
     
     if ( typeof finalState === 'string' && finalState.length ) {
         //var finalStateCallack = this._stateCallback.bind(this, finalState);
 
         // todo check if it's correct
-        var finalStateCallack = this.state.run.bind(this.state);
+        //var finalStateCallack = this.state.run.bind(this.state);
+        var finalStateCallack = function (data) {
+            var state = pipe.stateLocator(pipe.name);
+            if (state && (typeof state.run === 'function')) {
+                state.run(data);
+            }
+        };
 
         if ( this.isAfterCallbackApplied ) {
             this._getAfterStep()._bindNextFunction(finalStateCallack);
