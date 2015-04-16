@@ -3,7 +3,7 @@ var StateFlow = require("../bin/stateflow.js");
 
 var flow, state;
 
-describe('0.1: Base tests', function () {
+describe('0.1: Flow tests', function () {
 
     beforeEach(function () {
         flow = StateFlow.create().flow;
@@ -327,7 +327,6 @@ describe('0.1: Base tests', function () {
         function middleware(data, chain) {
             setTimeout(function () {
                 data += 1;
-                console.log(data);
                 if (data === 1) {
                     chain.error(data);
                 } else {
@@ -336,43 +335,28 @@ describe('0.1: Base tests', function () {
             }, 50);
         }
 
-        flow.to('b')
+        flow.to('a')
             .process(function (data) {
                 (data).should.equal(1);
                 //done();
             })
             .described();
 
-        flow.to('a')
+        flow.to('b')
             .process(middleware)
-            .use('b')
+            .use('a')
             .error(middleware)
             .process(function () {
-                console.log('finish');
                 done();
             })
             .described();
 
-        flow.switchTo('a', 0);
-    });
-
-    it('0.1.11: Flow: empty flow', function (done) {
-
-        flow.to('a')
-            .described('b');
-
-        flow.to('b')
-            .process(function () {
-                done();
-            })
-            .described();
-
-        flow.switchTo('a');
+        flow.switchTo('b', 0);
     });
 
 });
 
-describe('0.1: Base tests', function () {
+describe('0.2: State tests', function () {
 
     beforeEach(function () {
         state = StateFlow.destroy().create().state;
@@ -381,7 +365,7 @@ describe('0.1: Base tests', function () {
         state = null;
     });
 
-    it('0.1.1: State: change state notification via callback', function (done) {
+    it('0.2.1: State: change state notification via callback', function (done) {
         function callback (data) {
             (data).should.equal(1);
             done();
