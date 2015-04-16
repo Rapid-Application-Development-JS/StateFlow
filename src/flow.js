@@ -1,6 +1,8 @@
-function Flow(){
+function Flow(stateLocator){
     this.pipes = {};
+    //this.states = {};
     this.activePipe = null;
+    this.stateLocator = stateLocator
 }
 
 Flow.prototype.exception = {
@@ -10,15 +12,10 @@ Flow.prototype.exception = {
 };
 
 Flow.prototype.to = function (name) {
-    if ( typeof name !== 'string' || !name.length ) {
-        throw new Error(this.exception.WRONG_NAME);
-    }
+    this._checkNameAcceptable(name);
+    this._checkNameExists(name);
 
-    if ( this.pipes.hasOwnProperty(name) ) {
-        throw new Error(this.exception.NAME_EXISTS);
-    }
-
-    this.pipes[name] = new Pipe(name, this.switchTo.bind(this));
+    this.pipes[name] = new Pipe(name, this.switchTo.bind(this), this.stateLocator, this._getPipeByName.bind(this));
 
     return this.pipes[name];
 };
@@ -36,6 +33,33 @@ Flow.prototype.switchTo = function (name, data) {
     this.activePipe.run(data);
 };
 
+
+Flow.prototype.destroy = function () {
+    this.stateLocator = null;
+    // todo implement it
+};
+
+//Flow.prototype.state = function (name) {
+//    this._checkNameAcceptable(name);
+//    this._checkNameExists(name);
+//
+//    this.states[name] = new State(name);
+//
+//    return this.pipes[name];
+//};
+
+Flow.prototype._checkNameExists = function (name) {
+    if ( this.pipes.hasOwnProperty(name) ) {
+        throw new Error(this.exception.NAME_EXISTS);
+    }
+};
+
+Flow.prototype._checkNameAcceptable = function (name) {
+    if ( typeof name !== 'string' || !name.length ) {
+        throw new Error(this.exception.WRONG_NAME);
+    }
+};
+
 Flow.prototype._lockAll = function () {
     for (var pipeName in this.pipes) {
         if (this.pipes.hasOwnProperty(pipeName) && this.pipes[pipeName] !== this.activePipe) {
@@ -44,6 +68,9 @@ Flow.prototype._lockAll = function () {
     }
 };
 
-Flow.prototype.destroy = function () {
-    // todo implement it
+Flow.prototype._getPipeByName = function (name) {
+    if (!this.pipes.hasOwnProperty(name) ) {
+        throw new Error(this.exception.NAME_DOES_NOT_EXIST);
+    }
+    return this.pipes[name];
 };

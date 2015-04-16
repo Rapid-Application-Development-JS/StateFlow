@@ -1,6 +1,6 @@
 function Flowhandler (name){
     this._locked = false;
-    this._parentPipeName = name;
+    this.name = name;
 
     this._discharge();
 
@@ -16,7 +16,7 @@ Flowhandler.prototype._callbackNames = {
 };
 
 Flowhandler.prototype.getCurrentState = function() {
-    return this._parentPipeName;
+    return this.name;
 };
 
 Flowhandler.prototype.next = function (data) {

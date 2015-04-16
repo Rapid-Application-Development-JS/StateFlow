@@ -1,14 +1,15 @@
 var should = require("chai").should();
-var StateFlow = require("../bin/stateflow.min.js");
+var StateFlow = require("../bin/stateflow.js");
 
 var flow, state;
 
-describe('0.1: Base tests', function () {
+describe('0.1: Flow tests', function () {
 
     beforeEach(function () {
         flow = StateFlow.destroy().create().flow;
     });
     afterEach(function () {
+        StateFlow.destroy();
         flow = null;
     });
 
@@ -68,7 +69,6 @@ describe('0.1: Base tests', function () {
 
         function middleware2(data, chain) {
             data += '2';
-
             // async data flow
             setTimeout(function () {
                 chain.next(data);
@@ -283,7 +283,7 @@ describe('0.1: Base tests', function () {
                 chain.next(data);
             })
             .process(showRequredScreen)
-            .described('user');
+            .described();
 
         // describe flow for 'user' state
         flow.to('user')
@@ -299,35 +299,34 @@ describe('0.1: Base tests', function () {
         flow.switchTo('user', {id: 123, flow: ''})
     });
 
-    it('0.1.10: Flow: switch to other flow via "described"', function (done) {
+    //it('0.1.10: Flow: switch to other flow via "described"', function (done) {
+    //    function middleware(data, chain) {
+    //        setTimeout(function () {
+    //            data += 1;
+    //            chain.next(data);
+    //        }, 50);
+    //    }
+    //
+    //    flow.to('a')
+    //        .process(middleware)
+    //        .process(middleware)
+    //        .process(middleware)
+    //        .described('b');
+    //
+    //    flow.to('b')
+    //        .process(function (data) {
+    //            (data).should.equal(3);
+    //            done();
+    //        })
+    //        .described();
+    //
+    //    flow.switchTo('a', 0);
+    //});
+
+    it('0.1.10: Flow: use pipe as a single step for another pipe"', function (done) {
         function middleware(data, chain) {
             setTimeout(function () {
                 data += 1;
-                chain.next(data);
-            }, 50);
-        }
-
-        flow.to('a')
-            .process(middleware)
-            .process(middleware)
-            .process(middleware)
-            .described('b');
-
-        flow.to('b')
-            .process(function (data) {
-                (data).should.equal(3);
-                done();
-            })
-            .described();
-
-        flow.switchTo('a', 0);
-    });
-
-    it('0.1.11: Flow: switch transaction via "switchTo"', function (done) {
-        function middleware(data, chain) {
-            setTimeout(function () {
-                data += 1;
-                console.log(data);
                 if (data === 1) {
                     chain.error(data);
                 } else {
@@ -337,39 +336,27 @@ describe('0.1: Base tests', function () {
         }
 
         flow.to('a')
-            .process(middleware)
-            .switchTo('b')
-            .error(middleware)
-            .process(middleware)
-            .described();
-
-        flow.to('b')
             .process(function (data) {
                 (data).should.equal(1);
-                done();
+                //done();
             })
             .described();
 
-        flow.switchTo('a', 0);
-    });
-
-    it('0.1.10: Flow: empty flow', function (done) {
-
-        flow.to('a')
-            .described('b');
-
         flow.to('b')
+            .process(middleware)
+            .use('a')
+            .error(middleware)
             .process(function () {
                 done();
             })
             .described();
 
-        flow.switchTo('a');
+        flow.switchTo('b', 0);
     });
 
 });
 
-describe('0.1: Base tests', function () {
+describe('0.2: State tests', function () {
 
     beforeEach(function () {
         state = StateFlow.destroy().create().state;
@@ -378,8 +365,13 @@ describe('0.1: Base tests', function () {
         state = null;
     });
 
-    it('0.1.1: State: change state notification', function (done) {
-        done();
-    });
+    it('0.2.1: State: change state notification via callback', function (done) {
+        function callback (data) {
+            (data).should.equal(1);
+            done();
+        }
 
+        state('a').attach(callback);
+        state('a').run(1);
+    });
 });
