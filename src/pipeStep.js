@@ -14,9 +14,9 @@ function PipeStep (options){
 
     this.handler = new Flowhandler(options.name);
 
-    this._parentPipeName = options.name;
+    this.name = options.name;
 
-    this.switchStateCallback = options.stateCallback;
+    this.stateCallback = options.stateCallback;
 
     if (typeof options.fn === 'function') {
         this.fn = options.fn;
@@ -171,7 +171,7 @@ PipeStep.prototype.unlock = function () {
 };
 
 PipeStep.prototype._createHandler = function() {
-	var handler = new Flowhandler(this._parentPipeName),
+	var handler = new Flowhandler(this.name),
         nextStep = this._links.next,
         errorHandlerStep = this._links.error,
         afterStep = this._links.switchTo,
@@ -199,11 +199,11 @@ PipeStep.prototype._createHandler = function() {
         if ( afterStep instanceof PipeStep ) {
 
             afterStep._bindNextFunction(function (lastStepData){
-                self.switchStateCallback(state, lastStepData);
+                self.stateCallback(state, lastStepData);
             });
             afterStep.run(data);
         } else {
-            self.switchStateCallback(state, data);
+            self.stateCallback(state, data);
         }
     });
 

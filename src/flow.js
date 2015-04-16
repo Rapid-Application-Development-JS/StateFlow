@@ -15,7 +15,7 @@ Flow.prototype.to = function (name) {
     this._checkNameAcceptable(name);
     this._checkNameExists(name);
 
-    this.pipes[name] = new Pipe(name, this.switchTo.bind(this), this.stateLocator);
+    this.pipes[name] = new Pipe(name, this.switchTo.bind(this), this.stateLocator, this._getPipeByName.bind(this));
 
     return this.pipes[name];
 };
@@ -50,7 +50,6 @@ Flow.prototype.destroy = function () {
 
 Flow.prototype._checkNameExists = function (name) {
     if ( this.pipes.hasOwnProperty(name) ) {
-    //if ( this.states.hasOwnProperty(name) || this.pipes.hasOwnProperty(name) ) {
         throw new Error(this.exception.NAME_EXISTS);
     }
 };
@@ -67,4 +66,11 @@ Flow.prototype._lockAll = function () {
             this.pipes[pipeName]._lockAllSteps();
         }
     }
+};
+
+Flow.prototype._getPipeByName = function (name) {
+    if (!this.pipes.hasOwnProperty(name) ) {
+        throw new Error(this.exception.NAME_DOES_NOT_EXIST);
+    }
+    return this.pipes[name];
 };

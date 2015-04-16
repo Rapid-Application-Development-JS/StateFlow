@@ -1,4 +1,4 @@
-function Pipe(name, changeStateCallback, stateLocator){
+function Pipe(name, changeStateCallback, stateLocator, pipeLocator){
 
     if (typeof name !== 'string') {
         throw new Error('');
@@ -23,9 +23,8 @@ function Pipe(name, changeStateCallback, stateLocator){
     // todo implement log
     this.dataLog = [];
 
-    this._runID = null;
-
     this.stateLocator = stateLocator;
+    this.pipeLocator = pipeLocator;
 }
 
 Pipe.prototype.exception = {
@@ -36,16 +35,12 @@ Pipe.prototype.exception = {
     ALREADY_DESCRIBED : 'you can\'t register any step after .described()'
 };
 
-Pipe.prototype.switchTo = function (fn, context) {
+Pipe.prototype.use = function (pipeName) {
 
-    var options = {
-        fn : fn,
-        context : context,
-        stateCallback : this._stateCallback,
-        type : PipeStep.prototype.pipeStepTypes.STATE
-    };
+    var usedPipe = this.pipeLocator(pipeName),
+        clonedSteps = usedPipe._cloneStepsArray();
 
-    this._createStep(options);
+    this.steps.push.apply(this.steps, clonedSteps);
 
     return this;
 };
@@ -107,12 +102,11 @@ Pipe.prototype.error = function (fn, context) {
     return this;
 };
 
-Pipe.prototype.described = function (finalState) {
+Pipe.prototype.described = function () {
 
     this._checkIfDescribed();
 
     // todo implement described step, which may change the flow's current state
-    //this.switchTo(function(){ });
 
     // todo if "state" is a string - add switching to that state at the end of the pipe
 
@@ -123,23 +117,22 @@ Pipe.prototype.described = function (finalState) {
         i,
         pipe = this;
     
-    if ( typeof finalState === 'string' && finalState.length ) {
-        //var finalStateCallack = this._stateCallback.bind(this, finalState);
 
-        // todo check if it's correct
-        //var finalStateCallack = this.state.run.bind(this.state);
-        var finalStateCallack = function (data) {
-            var state = pipe.stateLocator(pipe.name);
-            if (state && (typeof state.run === 'function')) {
-                state.run(data);
-            }
-        };
-
-        if ( this.isAfterCallbackApplied ) {
-            this._getAfterStep()._bindNextFunction(finalStateCallack);
+    // todo check if it's correct
+    //var finalStateCallack = this.state.run.bind(this.state);
+    var finalStateCallack = function (data, chain) {
+        var state = pipe.stateLocator(pipe.name);
+        if (state && (typeof state.run === 'function')) {
+            state.run(data);
         } else {
-            this.after(finalStateCallack);
+            chain.next(data);
         }
+    };
+
+    if ( this.isAfterCallbackApplied ) {
+        this._getAfterStep()._bindNextFunction(finalStateCallack);
+    } else {
+        this.after(finalStateCallack);
     }
 
     if ( this.isAfterCallbackApplied ) {
@@ -176,6 +169,20 @@ Pipe.prototype.described = function (finalState) {
     this.isReady = true;
 
     return this;
+};
+
+Pipe.prototype.run = function (data) {
+    if (this.isReady) {
+
+        this._unlockAllSteps();
+        //this.isReady = false;
+        //this.described();
+        // todo refactor this
+        this._findStepByType(PipeStep.prototype.pipeStepTypes.PROCESS)
+            .run(data);
+    } else {
+        throw new Error(this.exception.NOT_READY);
+    }
 };
 
 Pipe.prototype._closestStep = function (base, type) {
@@ -221,20 +228,6 @@ Pipe.prototype._getAfterStep = function () {
         after = this._findStepByType(PipeStep.prototype.pipeStepTypes.AFTER);
     }
     return after;
-};
-
-Pipe.prototype.run = function (data) {
-    if (this.isReady) {
-
-        this._unlockAllSteps();
-        //this.isReady = false;
-        //this.described();
-        // todo refactor this
-        this._findStepByType(PipeStep.prototype.pipeStepTypes.PROCESS)
-            .run(data);
-    } else {
-        throw new Error(this.exception.NOT_READY);
-    }
 };
 
 Pipe.prototype._log = function(options) {
@@ -307,4 +300,16 @@ Pipe.prototype._findStepByType = function (type, backwardSearch, start) {
     }
 
     return step;
+};
+
+Pipe.prototype._cloneStepsArray = function () {
+    var cloned = [];
+    for (var i = 0; i < this.steps.length; i++) {
+        var step = new PipeStep(this.steps[i]);
+        if (step.type !== PipeStep.prototype.pipeStepTypes.AFTER) {
+            cloned.push(step);
+        }
+    }
+
+    return cloned;
 };
