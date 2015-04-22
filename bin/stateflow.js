@@ -729,6 +729,8 @@ State.prototype.run = function (data) {
         cb.fn.apply(cb.context, [this.data, this.name]);
     }
 };
+
+State.prototype.turn = State.prototype.run;
 var StateFlow = (function () {
     var states = {};
 

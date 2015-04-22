@@ -397,7 +397,7 @@ describe('0.2: State tests', function () {
             .process(middleware)
             .described();
 
-        state(stateName).run(1);
+        state(stateName).turn(1);
     });
 
     it('0.2.2: State: change state via flow \'run\'', function (done) {
