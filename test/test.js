@@ -336,9 +336,11 @@ describe('0.2: State tests', function () {
 
     beforeEach(function () {
         state = StateFlow.destroy().create().state;
+        flow = StateFlow.flow;
     });
     afterEach(function () {
         state = null;
+        flow = null;
     });
 
     it('0.2.1: State: change state notification via callback', function (done) {
@@ -350,4 +352,28 @@ describe('0.2: State tests', function () {
         state('a').attach(callback);
         state('a').run(1);
     });
+
+    it('0.2.2: State: change state notification via callback', function (done) {
+        var stateName = 'a';
+
+        function callback (data) {
+            (data).should.equal('1middleware');
+            done();
+        }
+
+        var middleware = function (data, chain) {
+            setTimeout(function(){
+                data += 'middleware';
+                chain.next(data);
+            }, 100);
+        };
+
+        state(stateName).attach(callback);
+        flow.to(stateName)
+            .process(middleware)
+            .described();
+
+        state(stateName).run(1);
+    });
+
 });
