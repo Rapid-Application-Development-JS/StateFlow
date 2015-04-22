@@ -353,7 +353,7 @@ describe('0.2: State tests', function () {
         state('a').run(1);
     });
 
-    it('0.2.2: State: change state notification via callback', function (done) {
+    it('0.2.2: State: change state through flow', function (done) {
         var stateName = 'a';
 
         function callback (data) {
@@ -374,6 +374,29 @@ describe('0.2: State tests', function () {
             .described();
 
         state(stateName).run(1);
+    });
+
+    it('0.2.2: State: change state via flow \'run\'', function (done) {
+        var stateName = 'a';
+
+        function callback (data) {
+            (data).should.equal('1middleware');
+            done();
+        }
+
+        var middleware = function (data, chain) {
+            setTimeout(function(){
+                data += 'middleware';
+                chain.next(data);
+            }, 100);
+        };
+
+        state(stateName).attach(callback);
+        var flowToState = flow.to(stateName)
+            .process(middleware)
+            .described();
+
+        flowToState.run(1);
     });
 
 });
