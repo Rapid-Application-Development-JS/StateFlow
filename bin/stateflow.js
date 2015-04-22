@@ -751,7 +751,7 @@ var StateFlow = (function () {
         //todo destroy by state name
         for (var state in states) {
             if (states.hasOwnProperty(state)) {
-                state.destroy();
+                states[state].destroy();
             }
         }
         states = {};
