@@ -330,6 +330,30 @@ describe('0.1: Flow tests', function () {
         flow.switchTo('b', 0);
     });
 
+    it('0.1.11: Flow: overhead test - 100 sync steps', function (done) {
+        function middleware(data, chain) {
+            data += 1;
+            chain.next(data);
+        }
+
+        var pipe = flow.to('a'),
+            startTime;
+
+        for (var i = 0; i < 2000; i++) {
+            pipe.process(middleware);
+        }
+
+        pipe.process(function () {
+            console.log(Date.now() - startTime);
+            done();
+        });
+
+        pipe.described();
+
+        startTime = Date.now();
+        flow.switchTo('a', 0);
+    });
+
 });
 
 describe('0.2: State tests', function () {
