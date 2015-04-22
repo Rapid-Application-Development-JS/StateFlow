@@ -30,8 +30,6 @@ Desktop.ini
 /node_modules/
 node_modules/
 
-bin/**
-bin/**/*
 dist/**
 dist/**/*
 

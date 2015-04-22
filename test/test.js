@@ -299,30 +299,6 @@ describe('0.1: Flow tests', function () {
         flow.switchTo('user', {id: 123, flow: ''})
     });
 
-    //it('0.1.10: Flow: switch to other flow via "described"', function (done) {
-    //    function middleware(data, chain) {
-    //        setTimeout(function () {
-    //            data += 1;
-    //            chain.next(data);
-    //        }, 50);
-    //    }
-    //
-    //    flow.to('a')
-    //        .process(middleware)
-    //        .process(middleware)
-    //        .process(middleware)
-    //        .described('b');
-    //
-    //    flow.to('b')
-    //        .process(function (data) {
-    //            (data).should.equal(3);
-    //            done();
-    //        })
-    //        .described();
-    //
-    //    flow.switchTo('a', 0);
-    //});
-
     it('0.1.10: Flow: use pipe as a single step for another pipe"', function (done) {
         function middleware(data, chain) {
             setTimeout(function () {
