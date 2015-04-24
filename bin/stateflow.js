@@ -763,14 +763,20 @@ var StateFlow = (function () {
         return this;
     };
 
-    function destroyStates () {
-        //todo destroy by state name
-        for (var state in states) {
-            if (states.hasOwnProperty(state)) {
-                states[state].destroy();
+    function destroyStates (name) {
+        if (typeof name === 'string') {
+            if (states.hasOwnProperty(name)) {
+                states[name].destroy();
             }
+            delete states[name];
+        } else if (name === undefined){
+            for (var state in states) {
+                if (states.hasOwnProperty(state)) {
+                    states[state].destroy();
+                }
+            }
+            states = {};
         }
-        states = {};
     }
 
     function stateLocator(name) {
