@@ -400,7 +400,7 @@ describe('0.2: State tests', function () {
         state(stateName).turn(1);
     });
 
-    it('0.2.2: State: change state via flow \'run\'', function (done) {
+    it('0.2.3: State: change state via flow \'run\'', function (done) {
         var stateName = 'a';
 
         function callback (data) {
@@ -421,6 +421,39 @@ describe('0.2: State tests', function () {
             .described();
 
         flowToState.run(1);
+    });
+
+    it('0.2.2: State: register emitter', function (done) {
+        var events = require('events');
+        var eventEmitter = new events.EventEmitter();
+
+        var stateName = 'a';
+
+        state.registerFn('emitter', function (event, emitter) {
+            emitter.on(event, function (e) {
+                this.turn(e);
+            }.bind(this));
+        });
+
+        function callback(data) {
+            (data.counter).should.equal(1);
+            done();
+        }
+
+        function middleware (data, chain) {
+            data.counter += 1;
+            chain.next(data);
+        }
+
+        state(stateName)
+            .emitter('event', eventEmitter)
+            .attach(callback);
+
+        flow.to(stateName)
+            .process(middleware)
+            .described();
+
+        eventEmitter.emit('event', {counter: 0});
     });
 
 });

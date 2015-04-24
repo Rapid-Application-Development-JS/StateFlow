@@ -16,6 +16,20 @@ var StateFlow = (function () {
         return state;
     }
 
+    createState.registerFn = function (name, callback) {
+        State.prototype[name] = function() {
+            callback.apply(this, arguments);
+            return this;
+        };
+
+        return this;
+    };
+
+    createState.unregisterFn = function (name) {
+        State.prototype[name] = null;
+        return this;
+    };
+
     function destroyStates () {
         //todo destroy by state name
         for (var state in states) {
