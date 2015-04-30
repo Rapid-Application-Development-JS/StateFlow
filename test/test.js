@@ -429,12 +429,6 @@ describe('0.2: State tests', function () {
 
         var stateName = 'a';
 
-        state.registerFn('emitter', function (event, emitter) {
-            emitter.on(event, function (e) {
-                this.turn(e);
-            }.bind(this));
-        });
-
         function callback(data) {
             (data.counter).should.equal(1);
             done();
@@ -444,6 +438,12 @@ describe('0.2: State tests', function () {
             data.counter += 1;
             chain.next(data);
         }
+
+        state.registerFn('emitter', function (event, emitter) {
+            emitter.on(event, function (e) {
+                this.turn(e);
+            }.bind(this));
+        });
 
         state(stateName)
             .emitter('event', eventEmitter)

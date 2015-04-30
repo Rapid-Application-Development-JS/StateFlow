@@ -2,23 +2,39 @@
 
 > Tries to describe the business logic flow of your application
 
-This is a small and lightweight (7 KB) tool (*logic glue*) for **logic chains and switching** based on the middleware idea.
+This is a small and lightweight (10 KB) tool (*logic glue*) for **logic chains and switching** based on flow(*transitions*) & states.
 
 ```javascript
-flow.to('a')
-           .process(middleware1)
-           .error(middleware2)
-           .error(middleware3)
-           .process(middleware4)
-           .error(middleware6)
-           .process(middleware7)
-           .described();
+// attach callbacks to state
+state(stateName).attach(callback).attach(other_callback);
 
-flow.to('b')
+// describe flow (transaction) for enable the state
+flow.to(stateName)
+    .process(middleware1)
+    .error(middleware2)
+    .error(middleware3)
+    .process(middleware4)
+    .error(middleware6)
+    .process(middleware7)
+    .described();
+
+// when you ready turn the state with new parameters for flow 
+state(stateName).turn(params);
+```
+
+```javascript
+// you can register any function, for example, as event emitter which turn your state
+state.register('emitter', function (event, element){
+    element.addEventListener(event, function (e) {
+        this.turn(e);
+    }, false);
+});
+
+// and then use it for any states
+state(stateName).emitter('click', document.querySelector('button')).attach(callback).attach(otherCallback);
+flow.to(stateName)
     .process(middleware)
     .described();
-               
-flow.switchTo('a', params);
 ```
 
 ##Idea
