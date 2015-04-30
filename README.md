@@ -2,6 +2,8 @@
 
 > Tries to describe the business logic flow of your application
 
+<span style="color:red;">**IN DEVELOPMENT**</span>
+
 This is a small and lightweight (10 KB) tool (*logic glue*) for **logic chains and switching** based on flow(*transitions*) & states.
 
 ```javascript
@@ -86,6 +88,9 @@ chain.switchTo('permission_screen', param);
 None. You can use it on both the client and the server sides.
 
 ##Documentation
+
+- [Get Started (temporarily only in Russian)](docs/getstarted.md)
+- [Tutorial (temporarily only in Russian)](docs/tutorial.md)
 
 ###<a name="middleware"></a>Middleware API
 Any callback function can serve as **middleware** if it takes `data` (any javascript object) and `chain` ([flow handler object](#flow_handler)) as parameters:
