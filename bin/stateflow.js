@@ -636,6 +636,7 @@ Flow.prototype.to = function (name) {
 Flow.prototype.switchTo = function (name, data) {
 
     if (!this.pipes.hasOwnProperty(name) ) {
+        console.log('NAME_DOES_NOT_EXIST');
         throw new Error(this.exception.NAME_DOES_NOT_EXIST);
     }
 
@@ -683,15 +684,20 @@ Flow.prototype._lockAll = function () {
 
 Flow.prototype._getPipeByName = function (name) {
     if (!this.pipes.hasOwnProperty(name) ) {
+        console.log('_getPipeByName', name);
         throw new Error(this.exception.NAME_DOES_NOT_EXIST);
     }
     return this.pipes[name];
 };
 
-function State(name) {
+function State(name, pipeLocator) {
     this.callbacks = [];
     this.data = null;
     this.name = name;
+
+    if (typeof pipeLocator === 'function') {
+        this._pipeLocator = pipeLocator;
+    }
 }
 
 State.prototype.exception = {
@@ -730,7 +736,20 @@ State.prototype.run = function (data) {
     }
 };
 
-State.prototype.turn = State.prototype.run;
+State.prototype.turnOn = function (data) {
+    var pipe = this._pipeLocator(this.name);
+
+    if (pipe && pipe instanceof Pipe) {
+        pipe.run(data);
+    } else {
+        this.run(data);
+    }
+};
+
+State.prototype._pipeLocator = function () {
+    // stub
+};
+
 var StateFlow = (function () {
     var states = {};
 
@@ -742,7 +761,7 @@ var StateFlow = (function () {
         }
         state = states[name];
         if (!state) {
-            state = new State(name);
+            state = new State(name, this.flow._getPipeByName.bind(this.flow));
             states[name] = state;
         }
 
@@ -789,7 +808,7 @@ var StateFlow = (function () {
                 this.flow = new Flow(stateLocator);
             }
             if (!this.state) {
-                this.state = createState;
+                this.state = createState.bind(this);
                 this.state.destroy = destroyStates;
             }
             return this;
