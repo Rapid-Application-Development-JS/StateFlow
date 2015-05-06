@@ -1,7 +1,11 @@
-function State(name) {
+function State(name, pipeLocator) {
     this.callbacks = [];
     this.data = null;
     this.name = name;
+
+    if (typeof pipeLocator === 'function') {
+        this._pipeLocator = pipeLocator;
+    }
 }
 
 State.prototype.exception = {
@@ -40,4 +44,16 @@ State.prototype.run = function (data) {
     }
 };
 
-State.prototype.turn = State.prototype.run;
+State.prototype.turnOn = function (data) {
+    var pipe = this._pipeLocator(this.name);
+
+    if (pipe && pipe instanceof Pipe) {
+        pipe.run(data);
+    } else {
+        this.run(data);
+    }
+};
+
+State.prototype._pipeLocator = function () {
+    // stub
+};

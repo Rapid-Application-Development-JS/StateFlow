@@ -397,7 +397,7 @@ describe('0.2: State tests', function () {
             .process(middleware)
             .described();
 
-        state(stateName).turn(1);
+        state(stateName).turnOn(1);
     });
 
     it('0.2.3: State: change state via flow \'run\'', function (done) {
@@ -423,7 +423,7 @@ describe('0.2: State tests', function () {
         flowToState.run(1);
     });
 
-    it('0.2.2: State: register emitter', function (done) {
+    it('0.2.4: State: register emitter', function (done) {
         var events = require('events');
         var eventEmitter = new events.EventEmitter();
 

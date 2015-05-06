@@ -9,7 +9,7 @@ var StateFlow = (function () {
         }
         state = states[name];
         if (!state) {
-            state = new State(name);
+            state = new State(name, this.flow._getPipeByName.bind(this.flow));
             states[name] = state;
         }
 
@@ -56,7 +56,8 @@ var StateFlow = (function () {
                 this.flow = new Flow(stateLocator);
             }
             if (!this.state) {
-                this.state = createState;
+                // todo refactor this bind
+                this.state = createState.bind(this);
                 this.state.destroy = destroyStates;
             }
             return this;
