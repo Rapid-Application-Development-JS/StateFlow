@@ -344,7 +344,6 @@ describe('0.1: Flow tests', function () {
         }
 
         pipe.process(function () {
-            console.log(Date.now() - startTime);
             done();
         });
 
