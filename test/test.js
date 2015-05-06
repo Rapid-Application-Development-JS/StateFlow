@@ -344,7 +344,6 @@ describe('0.1: Flow tests', function () {
         }
 
         pipe.process(function () {
-            console.log(Date.now() - startTime);
             done();
         });
 
@@ -441,7 +440,7 @@ describe('0.2: State tests', function () {
 
         state.registerFn('emitter', function (event, emitter) {
             emitter.on(event, function (e) {
-                this.turn(e);
+                this.turnOn(e);
             }.bind(this));
         });
 

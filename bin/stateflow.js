@@ -636,7 +636,6 @@ Flow.prototype.to = function (name) {
 Flow.prototype.switchTo = function (name, data) {
 
     if (!this.pipes.hasOwnProperty(name) ) {
-        console.log('NAME_DOES_NOT_EXIST');
         throw new Error(this.exception.NAME_DOES_NOT_EXIST);
     }
 
@@ -684,7 +683,6 @@ Flow.prototype._lockAll = function () {
 
 Flow.prototype._getPipeByName = function (name) {
     if (!this.pipes.hasOwnProperty(name) ) {
-        console.log('_getPipeByName', name);
         throw new Error(this.exception.NAME_DOES_NOT_EXIST);
     }
     return this.pipes[name];
@@ -751,7 +749,7 @@ State.prototype._pipeLocator = function () {
 };
 
 var StateFlow = (function () {
-    var states = {};
+    var states = {}, holder = {};
 
     function createState(name) {
         var state;
@@ -768,19 +766,20 @@ var StateFlow = (function () {
         return state;
     }
 
-    createState.registerFn = function (name, callback) {
+    function registerFn(name, callback) {
         State.prototype[name] = function() {
             callback.apply(this, arguments);
             return this;
         };
 
-        return this;
-    };
+        return holder.state;
+    }
 
-    createState.unregisterFn = function (name) {
+    function unregisterFn(name) {
         State.prototype[name] = null;
-        return this;
-    };
+
+        return holder.state;
+    }
 
     function destroyStates (name) {
         if (typeof name === 'string') {
@@ -802,29 +801,34 @@ var StateFlow = (function () {
         return states[name];
     }
 
-    return {
-        create: function () {
-            if(!this.flow){
-                this.flow = new Flow(stateLocator);
-            }
-            if (!this.state) {
-                this.state = createState.bind(this);
-                this.state.destroy = destroyStates;
-            }
-            return this;
-        },
-        destroy: function () {
-            if (this.flow) {
-                this.flow.destroy();
-                this.flow = null;
-            }
-            if (this.state) {
-                this.state.destroy();
-                this.state = null;
-            }
-            return this;
+    holder.create = function () {
+        if(!this.flow){
+            this.flow = new Flow(stateLocator);
         }
+        if (!this.state) {
+            // todo refactor this bind
+            this.state = createState.bind(this);
+            this.state.destroy = destroyStates;
+
+            this.state.registerFn = registerFn;
+            this.state.unregisterFn = unregisterFn;
+        }
+        return holder;
     };
+
+    holder.destroy = function () {
+        if (this.flow) {
+            this.flow.destroy();
+            this.flow = null;
+        }
+        if (this.state) {
+            this.state.destroy();
+            this.state = null;
+        }
+        return holder;
+    };
+
+    return holder;
 })();
 return StateFlow;
 
