@@ -1,7 +1,8 @@
 var StateFlow = (function () {
     var states = {};
+    var singletonInstance = null;
 
-    function createState(name) {
+    function createState(name, pipeLocator) {
         var state;
 
         if (typeof name !== 'string') {
@@ -9,7 +10,7 @@ var StateFlow = (function () {
         }
         state = states[name];
         if (!state) {
-            state = new State(name, this.flow._getPipeByName.bind(this.flow));
+            state = new State(name, singletonInstance.flow._getPipeWrapper.bind(singletonInstance.flow));
             states[name] = state;
         }
 
@@ -56,10 +57,11 @@ var StateFlow = (function () {
                 this.flow = new Flow(stateLocator);
             }
             if (!this.state) {
-                // todo refactor this bind
-                this.state = createState.bind(this);
+                this.state = createState;
+
                 this.state.destroy = destroyStates;
             }
+            singletonInstance = this;
             return this;
         },
         destroy: function () {

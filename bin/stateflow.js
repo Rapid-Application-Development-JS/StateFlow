@@ -636,7 +636,6 @@ Flow.prototype.to = function (name) {
 Flow.prototype.switchTo = function (name, data) {
 
     if (!this.pipes.hasOwnProperty(name) ) {
-        console.log('NAME_DOES_NOT_EXIST');
         throw new Error(this.exception.NAME_DOES_NOT_EXIST);
     }
 
@@ -684,10 +683,16 @@ Flow.prototype._lockAll = function () {
 
 Flow.prototype._getPipeByName = function (name) {
     if (!this.pipes.hasOwnProperty(name) ) {
-        console.log('_getPipeByName', name);
         throw new Error(this.exception.NAME_DOES_NOT_EXIST);
     }
     return this.pipes[name];
+};
+
+Flow.prototype._getPipeWrapper = function (name) {
+    var self = this;
+    return function (data) {
+        self.switchTo(name, data);
+    }
 };
 
 function State(name, pipeLocator) {
@@ -739,8 +744,8 @@ State.prototype.run = function (data) {
 State.prototype.turnOn = function (data) {
     var pipe = this._pipeLocator(this.name);
 
-    if (pipe && pipe instanceof Pipe) {
-        pipe.run(data);
+    if (pipe && typeof pipe === 'function') {
+        pipe(data);
     } else {
         this.run(data);
     }
@@ -749,11 +754,11 @@ State.prototype.turnOn = function (data) {
 State.prototype._pipeLocator = function () {
     // stub
 };
-
 var StateFlow = (function () {
     var states = {};
+    var singletonInstance = null;
 
-    function createState(name) {
+    function createState(name, pipeLocator) {
         var state;
 
         if (typeof name !== 'string') {
@@ -761,7 +766,7 @@ var StateFlow = (function () {
         }
         state = states[name];
         if (!state) {
-            state = new State(name, this.flow._getPipeByName.bind(this.flow));
+            state = new State(name, singletonInstance.flow._getPipeWrapper.bind(singletonInstance.flow));
             states[name] = state;
         }
 
@@ -808,9 +813,11 @@ var StateFlow = (function () {
                 this.flow = new Flow(stateLocator);
             }
             if (!this.state) {
-                this.state = createState.bind(this);
+                this.state = createState;
+
                 this.state.destroy = destroyStates;
             }
+            singletonInstance = this;
             return this;
         },
         destroy: function () {

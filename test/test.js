@@ -430,18 +430,25 @@ describe('0.2: State tests', function () {
         var stateName = 'a';
 
         function callback(data) {
-            (data.counter).should.equal(1);
+            (data.counter).should.equal(2);
             done();
         }
 
-        function middleware (data, chain) {
+        function syncMiddleware (data, chain) {
             data.counter += 1;
             chain.next(data);
         }
 
+        function asyncMiddleware (data, chain) {
+            setTimeout(function () {
+                data.counter += 1;
+                chain.next(data);
+            }, 0)
+        }
+
         state.registerFn('emitter', function (event, emitter) {
             emitter.on(event, function (e) {
-                this.turn(e);
+                this.turnOn(e);
             }.bind(this));
         });
 
@@ -450,7 +457,8 @@ describe('0.2: State tests', function () {
             .attach(callback);
 
         flow.to(stateName)
-            .process(middleware)
+            .process(syncMiddleware)
+            .process(asyncMiddleware)
             .described();
 
         eventEmitter.emit('event', {counter: 0});

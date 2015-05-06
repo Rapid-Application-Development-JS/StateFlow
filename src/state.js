@@ -47,8 +47,8 @@ State.prototype.run = function (data) {
 State.prototype.turnOn = function (data) {
     var pipe = this._pipeLocator(this.name);
 
-    if (pipe && pipe instanceof Pipe) {
-        pipe.run(data);
+    if (pipe && typeof pipe === 'function') {
+        pipe(data);
     } else {
         this.run(data);
     }

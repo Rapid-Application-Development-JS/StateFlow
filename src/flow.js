@@ -74,3 +74,10 @@ Flow.prototype._getPipeByName = function (name) {
     }
     return this.pipes[name];
 };
+
+Flow.prototype._getPipeWrapper = function (name) {
+    var self = this;
+    return function (data) {
+        self.switchTo(name, data);
+    }
+};
