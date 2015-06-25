@@ -81,3 +81,5 @@ Flow.prototype._getPipeWrapper = function (name) {
         self.switchTo(name, data);
     }
 };
+
+// todo callback on beforeLeave state (like saving data or validation)

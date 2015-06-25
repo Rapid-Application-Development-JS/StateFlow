@@ -1,5 +1,7 @@
 var StateFlow = (function () {
-    var states = {}, holder = {};
+    var states = {},
+        holder = {},
+        activeState = null;
 
     function createState(name, pipeLocator) {
         var state;
